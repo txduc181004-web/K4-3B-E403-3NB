@@ -1,217 +1,144 @@
-# Template AI Spec *(spec.md — commit trước hạn chốt spec: 21:00 18/9, tại CP4 · quality bar chốt từ thời điểm nộp)*
+# AI SPEC — Bản đồ lỗ hổng của lớp · Nhóm 3NB · Zone E403
 
-> Cấu trúc phủ đúng "SPEC 8 phần" của chương trình: Bằng chứng (§1-§2) · Lát cắt (§4) · Canvas (đính kèm CP1) · Augment/Automate (§4) · 4 đường đi của trải nghiệm (§6) · Kiểu lỗi (§5) · Kiểm thử (§7) · Phân công (§8). Hướng dẫn viết từng mục: `02-guide.md`.
+> Mốc chốt: CP4, trước 21:00 ngày 18/09/2026. Quality bar bên dưới được khóa tại thời điểm nộp spec và không hạ sau khi xem các lượt chạy.
 
-```markdown
-**# AI SPEC — Bản đồ lỗ hổng của lớp cho giảng viên · Nhóm [XX] · Zone [X]**
+**Hướng:** [x] A — VLearn  [ ] B — Trợ lý Học viên  [ ] C — Làn mở  
+**Loại:** [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới  
+**Đội trưởng:** Trần Xuân Đức · **Lớp/phòng:** 3B / E403
 
-Hướng: [x] A — VLearn  [ ] B — Trợ lý Học viên  [ ] C — Làn mở
+## §1. User & Job
 
-Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
+- **Job executor + workflow:** Giảng viên hoặc TA của một lớp: (1) nạp chatlog, (2) xem các learning signal, (3) xem topic được chuẩn hóa và xếp hạng, (4) mở quote/evidence gốc, (5) tự quyết định có giảng lại hay không.
+- **Core JTBD:** Khi chuẩn bị hoặc điều chỉnh buổi học, giảng viên muốn biết chủ đề nào trong lớp đang có nhiều dấu hiệu chưa hiểu để ưu tiên giải thích hoặc ôn tập đúng chỗ.
+- **Problem statement:** Trong lớp đông, giảng viên phải đọc và tổng hợp nhiều câu hỏi rời rạc để nhận ra vấn đề lặp lại. Việc này tốn thời gian, dễ nhầm câu hỏi logistics với câu hỏi kiến thức và có thể bỏ sót lỗ hổng cần xử lý.
+- **Evidence chuẩn A:** Mining từ chatlog VLearn đã ẩn danh: 13.494 lượt hỏi-đáp, khoảng thời gian 22/07 18:00–15/09 17:57 (giờ Việt Nam), nguồn được mô tả trong `canvas.md`; prototype lấy tối đa 500 candidate questions. Đây là bằng chứng hành vi, không phải suy đoán nhu cầu.
+- **Evidence chuẩn B:** Nhóm ghi nhận feedback thăm dò từ 10 người, 7/10 xác nhận từng mất thời gian tìm lại câu hỏi/nội dung chưa hiểu. Raw survey không được commit vì dữ liệu lớp học; đây là số liệu tự khai và chưa đủ để tuyên bố đại diện cho toàn khóa.
+- **Quote nguyên văn + nguồn:**
+  - “Em vẫn chưa hiểu sự khác nhau giữa RAG và fine-tuning.” — Thu, `CHAT-014`.
+  - “Em đọc lại slide nhưng vẫn không biết tại sao phải dùng embedding.” — Bình, `CHAT-027`.
+  - “Có ai giải thích lại giúp em đoạn retrieval được không?” — Kiên, `CHAT-035`.
+  - “Em làm theo ví dụ nhưng kết quả không giống trong bài giảng.” — Thu, `CHAT-041`.
+  - “Em không chắc là mình hiểu đúng cách hoạt động của vector database.” — Bình, `CHAT-056`.
 
-**## §1. User & Job**
+## §2. Impact & quyết định chọn
 
-- Job executor + workflow (đính kèm worksheet JTBD / ảnh sơ đồ): Giảng viên/TA của lớp → xem các câu hỏi và tín hiệu khó hiểu trong chatlog → xác định chủ đề học viên đang gặp khó khăn → quyết định nội dung cần giải thích/ôn lại.
+| Ứng viên/pain | Bao nhiêu người | Tần suất | Tốn gì mỗi lần | Khả thi |
+|---|---:|---:|---:|---|
+| Tìm chủ đề kiến thức lặp lại để biết lớp cần ôn gì | 8/10 lượt phản hồi liên quan | 1–3 lần/tuần | 10–15 phút đọc lại chatlog, slide, câu hỏi cũ | Cao; dữ liệu đã có trong chatlog |
+| Tự tìm lại câu hỏi/nội dung cá nhân | 1/10 | khoảng 1 lần/tuần | 5 phút tìm kiếm | Trung bình; cần search cá nhân, không tạo giá trị lớp học |
+| Tìm tài liệu hoặc link bài giảng | 1/10 | khoảng 1 lần/tuần | 5–10 phút | Thấp cho lát cắt này; là vấn đề logistics |
+| Giải thích lại từng câu hỏi cho từng học viên | 3/10 có nhu cầu | 1–2 lần/tuần | 10–15 phút mỗi câu trả lời | Không chọn; cần tutor workflow và người duyệt |
 
-- Core JTBD (không tên sản phẩm/AI trong câu): Khi chuẩn bị hoặc điều chỉnh nội dung giảng dạy, giảng viên muốn biết lớp đang gặp khó khăn ở chủ đề nào để ưu tiên giải thích hoặc ôn tập đúng chỗ.
-
-- Problem statement (KHÔNG chữ AI):Giảng viên phải tự đọc và tổng hợp nhiều câu hỏi rời rạc của học viên để nhận ra các chủ đề đang gây khó khăn, khiến việc xác định ưu tiên giảng lại tốn thời gian và có thể bỏ sót những vấn đề lặp lại.
-
-- Evidence (chuẩn A và/hoặc B — log đầy đủ trong repo):
-
-- Số liệu mining / kết quả khảo sát (n = 10, 70% xác nhận): 7/10 học viên cho biết họ từng gặp khó khăn khi xác định phần kiến thức mình chưa hiểu và phải tìm lại nhiều câu hỏi hoặc nội dung liên quan. Trong đó Thu, Kiên và Bình đều đề cập nhu cầu tổng hợp các câu hỏi lặp lại để biết chủ đề nào cần được giải thích thêm.
-
-- ≥5 quote/ví dụ nguyên văn + nguồn:
-
-```
-\- “Em vẫn chưa hiểu sự khác nhau giữa RAG và fine-tuning.” — Thu, `CHAT-014`
-
-\- “Em đọc lại slide nhưng vẫn không biết tại sao phải dùng embedding.” — Bình, `CHAT-027`
-
-\- “Có ai giải thích lại giúp em đoạn retrieval được không?” — Kiên, `CHAT-035`
-
-\- “Em làm theo ví dụ nhưng kết quả không giống trong bài giảng.” — Thu, `CHAT-041`
-
-\- “Em không chắc là mình hiểu đúng cách hoạt động của vector database.” — Bình, `CHAT-056`
-```
-
-**## §2. Impact & quyết định chọn**
-
-- Bảng impact ≥3 ứng viên (bao nhiêu người · tần suất · tốn gì mỗi lần · khả thi):
-
-- **Thu — học viên:** 3/10 người có vấn đề tương tự; khoảng 2–3 lần/tuần; mất 10–15 phút mỗi lần để tìm lại nội dung và câu hỏi cũ; khả thi cao.
-
-- **Kiên — học viên:** 3/10 người có vấn đề tương tự; khoảng 1–2 lần/tuần; mất 10–15 phút mỗi lần để xác định phần kiến thức chưa chắc; khả thi cao.
-
-- **Bình — học viên:** 2/10 người có vấn đề tương tự; khoảng 2 lần/tuần; mất khoảng 10 phút mỗi lần để đối chiếu slide, chatlog và bài giảng; khả thi cao.
-
-- **Minh — học viên:** 1/10 người có vấn đề tương tự; khoảng 1 lần/tuần; mất 5 phút mỗi lần để tìm lại câu hỏi cũ; khả thi cao.
-
-- **Lan — học viên:** 1/10 người có vấn đề tương tự; khoảng 1 lần/tuần; mất 5–10 phút mỗi lần để tìm tài liệu; khả thi trung bình.
-
-- Ứng viên ĐÃ LOẠI + vì sao:
-
-- **Minh:** Chỉ 1/10 người gặp vấn đề và tần suất thấp, chủ yếu là nhu cầu tìm lại thông tin cá nhân.
-
-- **Lan:** Chỉ 1/10 người gặp vấn đề, tần suất thấp và vấn đề thiên về tìm tài liệu hơn là xác định lỗ hổng kiến thức.
-
-- Ứng viên CHỌN + vì sao (bằng số): **Thu, Kiên và Bình:** Có tổng cộng 8/10 lượt học viên được khảo sát ghi nhận nhu cầu liên quan đến việc xác định hoặc tổng hợp phần kiến thức chưa hiểu; ba ứng viên có tần suất gặp vấn đề từ 1–3 lần/tuần và mất khoảng 10–15 phút mỗi lần. Đây là nhóm vấn đề có thể tổng hợp từ chatlog thành bản đồ các chủ đề cần giảng viên ưu tiên giải thích hoặc ôn lại.
-
+- **Ứng viên đã loại:**
+  - Search cá nhân: chỉ 1/10, tần suất thấp và không giúp giảng viên nhìn vấn đề chung của lớp.
+  - Tìm link/tài liệu: chỉ 1/10, thuộc logistics/product issue; classifier phải loại khỏi learning-gap map.
+  - Tự động trả lời từng học viên: cost-of-error cao, vượt vai trò triage và có thể thay thế phán đoán của TA.
+- **Ứng viên chọn:** Bản đồ các topic có learning signal lặp lại. Lý do định lượng: 8/10 phản hồi gắn với việc xác định phần chưa hiểu; mỗi lần mất 10–15 phút; cùng dữ liệu có thể tái sử dụng cho nhiều giảng viên và có evidence để kiểm tra.
 
 ## §3. Giải pháp tương tự đã nghiên cứu
 
-1. NotebookLM / AI research assistant
-   - Flow: người dùng tải tài liệu, hỏi câu hỏi, hệ thống trả lời kèm nguồn và trích dẫn rõ ràng.
-   - Điều đáng học: luôn gắn câu trả lời với nguồn/đoạn văn, giúp người dùng kiểm chứng nhanh; cách hiển thị topic/summary rõ hơn khi tài liệu dài.
-   - Điều đáng né: không phù hợp với chatlog rời rạc, vì dữ liệu không có cấu trúc và không luôn mang nguồn rõ ràng; nếu AI cố gắng gộp mọi câu hỏi vào “bài học” thì dễ sinh ra “triệu chứng giả” hoặc topic quá rộng.
-   - Khác với giải pháp của chúng ta: chúng ta không cần trả lời học viên từng câu hỏi, mà cần nhận diện “điểm đau chung” của lớp từ các câu hỏi lặp lại, rồi ưu tiên nội dung giảng lại.
-
-2. ChatGPT / Claude study mode / AI tutor
-   - Flow: trả lời theo ngữ cảnh học tập, giải thích từng khái niệm và gợi ý follow-up.
-   - Điều đáng học: AI có thể làm rõ khái niệm theo mức độ học viên và cải thiện trải nghiệm khi học viên đang “mất mạch” trong lúc học.
-   - Điều đáng né: dễ tạo ra câu trả lời dày đặc nhưng không phản ánh “vấn đề nào đang lặp lại trong lớp”, nên không hỗ trợ giảng viên quyết định ưu tiên giảng dạy.
-   - Khác với giải pháp của chúng ta: chúng ta tập trung vào mô hình “phát hiện chủ đề khó của cả lớp” chứ không chỉ giải bất kỳ một câu hỏi nào.
-
-3. Khanmigo / AI tutor học tập theo lớp
-   - Flow: hỗ trợ học viên trong quá trình học, thường kèm theo theo dõi tiến độ và gợi ý khi học viên mắc lỗi.
-   - Điều đáng học: nên chia rõ “câu hỏi hiện tại” với “topic học đang gặp vấn đề”, và ưu tiên hiển thị sự chắc chắn/căn cứ của AI.
-   - Điều đáng né: không nên biến AI thành “người chốt mọi quyết định” cho giảng viên; hệ thống cần để người dùng kiểm soát final judgement.
-   - Khác với giải pháp của chúng ta: hướng của chúng ta là support giảng viên dạng triage và priorítization, không phải cá nhân hoá từng học viên.
-
-Kết luận: các sản phẩm hiện có tốt ở việc giải thích hoặc tổng hợp kiến thức, nhưng thiếu một tầng “sự kiện lớp học” theo thời gian và chủ đề, nên không giải quyết được bài toán: “giảng viên cần biết lớp đang gặp khó ở chủ đề nào và cần ưu tiên giải thích ở đâu.”
+| Sản phẩm | Flow của họ | Đáng học | Đáng né | Mình khác gì |
+|---|---|---|---|---|
+| NotebookLM / research assistant | Nạp tài liệu → hỏi → nhận câu trả lời kèm nguồn | Luôn hiển thị nguồn/đoạn trích để kiểm chứng | Ép chatlog rời rạc thành một kết luận rộng; dễ sinh topic giả | Không trả lời câu hỏi; phát hiện topic khó lặp lại của cả lớp từ chatlog |
+| ChatGPT/Claude study mode | Học viên hỏi → hệ thống giải thích theo ngữ cảnh → hỏi tiếp | Điều chỉnh giải thích và nhận biết lúc người học mất mạch | Dài dòng, không cho biết vấn đề nào lặp lại ở cấp lớp | Phục vụ giảng viên triage và ưu tiên, không làm tutor cá nhân |
+| Khanmigo / class tutor | Hỗ trợ từng học viên → theo dõi tiến độ → gợi ý can thiệp | Tách câu hỏi hiện tại khỏi tín hiệu khó kéo dài; giữ human oversight | Để hệ thống chốt thay người dạy hoặc suy luận năng lực cá nhân | Chỉ tổng hợp tín hiệu có căn cứ; quyết định dạy lại thuộc giảng viên |
 
 ## §4. Thiết kế
 
-- Lát cắt MỘT CÂU (1 user · 1 việc · 1 quyết định AI · 1 kết quả):
-  - Với giảng viên/TA của một lớp, AI xem các câu hỏi và tin nhắn trong chatlog, nhóm các câu hỏi theo chủ đề và cho thấy chủ đề nào đang gây khó khăn nhất, để giảng viên quyết định nội dung cần ôn lại mà không bỏ sót vấn đề lặp lại.
+- **Lát cắt một câu:** Một giảng viên xem chatlog của một lớp; hệ thống nhóm các câu hỏi có dấu hiệu lỗ hổng thành topic có evidence; giảng viên quyết định topic nào cần ôn lại.
+- **Non-goals:**
+  1. Không trả lời thay TA từng câu hỏi của học viên.
+  2. Không chấm điểm, gắn nhãn “yếu”, hay suy luận tâm lý/năng lực cá nhân.
+  3. Không tự quyết định nội dung giảng dạy hoặc tự gửi phản hồi cho cả lớp.
+  4. Không dự đoán hành vi ngoài chatlog và ngữ cảnh bài học được cung cấp.
+  5. Không dùng dữ liệu cá nhân ngoài phạm vi lớp học.
+- **Mức prototype:** [ ] Sketch  [ ] Mock  [x] Working. Thật: candidate extraction, LLM analysis bằng Ollama `qwen2.5:3b`, scope classification, topic normalization, aggregation và dashboard evidence. Chưa hoàn thiện: chỉnh/gộp topic trực tiếp trên dashboard và luồng xác nhận bắt buộc trước khi xuất bản kết luận.
+- **Automation:** [ ] augment  [x] conditional  [ ] automate. Hệ thống tự phát hiện, phân loại và gom nhóm khi có căn cứ; chuyển sang `clarify`, `INSUFFICIENT_EVIDENCE` hoặc human review khi câu hỏi mơ hồ. Cost-of-error của gán sai topic là giảng viên ôn sai; cost-of-error của bỏ qua một câu mơ hồ thấp hơn, nên ưu tiên không đoán.
 
-- Non-goals (≥3 thứ KHÔNG build):
-  1. Không trả lời từng câu hỏi của học viên thay cho TA hoặc giảng viên.
-  2. Không chấm điểm/đánh giá học viên cá nhân theo tiến độ hoặc mức độ hiểu bài.
-  3. Không tự động quyết định nội dung giảng dạy cuối cùng; AI chỉ gợi ý, người dùng giữ quyền quyết định.
-  4. Không dự đoán hành vi học viên ngoài dữ liệu chatlog và slide nội dung đã có.
-  5. Không dùng dữ liệu cá nhân hoặc cuộc hội thoại ngoài phạm vi lớp học.
+### §4b. Nguyên tắc HAX/PAIR đã áp dụng
 
-- Mức prototype nhắm tới: [ ] Sketch [x] Mock [ ] Working — phần nào mock, phần nào thật:
-  - Mock: UI, flow nhập chatlog, bảng chủ đề, ranking, mô tả nguyên nhân/độ tin cậy, thao tác xác nhận/loại bỏ chủ đề.
-  - Thật: AI call phân tích chatlog, nhóm câu hỏi theo chủ đề, trích dẫn quote/tài liệu, tính điểm frequency + severity + evidence.
+| Nguyên tắc | Áp dụng cụ thể |
+|---|---|
+| HAX G1 — Capabilities & limitations | Dashboard nói rõ đây là tín hiệu từ chatlog, không phải kết luận năng lực hay quyết định dạy học. |
+| HAX G2 — Confidence | Lưu severity/reason và yêu cầu human review cho case thiếu căn cứ; không biến câu hỏi mơ hồ thành topic chắc chắn. |
+| HAX G9 — Easy correction | Thiết kế mục tiêu cho phép bỏ topic, đổi nhãn, gộp topic và chạy lại subset; UI correction chưa kịp hoàn thiện ở CP4. |
+| HAX G10 — Narrow scope under uncertainty | Classifier tách `INSUFFICIENT_EVIDENCE`, logistics, product/content issue khỏi `LEARNING_GAP`. |
+| HAX G11 — Explain why | Mỗi topic hiển thị signal count, student count, severity, lecture context và tối đa 5 evidence questions. |
+| PAIR — Feedback and control | Người dùng giữ quyền xác nhận topic và quyết định ôn lại; hệ thống không tự publish hành động sư phạm. |
+| PAIR — Graceful failure | Ngoài phạm vi hoặc không đủ dữ liệu thì reject/clarify, không bịa topic hay câu trả lời. |
 
-- Automation: [ ] augment [x] conditional [ ] automate — lý do theo cost-of-error:
-  - Đây là trường hợp conditional: AI được phép tự xử lý phần lớn flow phân tích và gộp chủ đề, nhưng phải chuyển sang người dùng khi độ tin cậy thấp, khi có nhiều chủ đề mơ hồ, hoặc khi AI phát hiện không đủ căn cứ.
-  - Sai lầm ở mức này có tầm ảnh hưởng cao vì giảng viên có thể ôn sai nội dung hoặc bỏ sót phần khó. Vì vậy AI không được “auto quyết định cuối cùng”; nó chỉ nên làm phần việc có căn cứ mạnh, còn các case mơ hồ sẽ hỏi lại hoặc yêu cầu xác nhận người dùng.
+## §5. Kiểu lỗi — 4 lớp chỗ khó + kịch bản
 
-- §4b. Nguyên tắc đã áp dụng (≥4 — HAX/PAIR):
+Mỗi dòng theo mẫu `tình huống | lớp | hành vi mong muốn | nguyên tắc áp`.
 
-  | Nguyên tắc | Áp cụ thể vào đâu trong prototype |
-  |---|---|
-  | G1 — Làm rõ hệ thống làm được gì | Mỗi lần mở giao diện, đầu tiên hiện một câu mô tả rõ: “AI phân tích chatlog và gợi ý chủ đề lớp đang gặp khó.” |
-  | G2 — Làm rõ nó làm tốt đến đâu | Mỗi chủ đề có mức độ tin cậy và nguồn trích dẫn; nếu không chắc, hiển thị tag “low confidence” thay vì ẩn sự mơ hồ. |
-  | G10 — Thu hẹp phạm vi khi nghi ngờ | Khi AI không thấy căn cứ rõ ràng, nó không “khẳng định chủ đề” mà trả về “chưa đủ dữ liệu” và yêu cầu người dùng xác nhận. |
-  | G9 — Sửa dễ dàng | Người dùng có thể bỏ topic, chỉnh lại nhãn, thêm quote, hoặc gộp hai chủ đề trong một thao tác đơn giản. |
-  | G11 — Giải thích vì sao | Mỗi chủ đề dùng số liệu và quote để justify: “5 câu hỏi có cùng từ khóa ‘embedding’, 3 câu nói lên sự nhầm lẫn giữa embedding vs vector DB”. |
-  | PAIR — Explainability + Trust | AI phải show quote + confidence + rationale, không chỉ show final topic list. |
-  | PAIR — Feedback + Control | Người dùng có thể xác nhận, bỏ qua, sửa label, hoặc yêu cầu AI tái phân nhóm. |
-  | PAIR — Errors + Graceful Failure | Khi câu hỏi ngoài phạm vi hoặc không có căn cứ, AI trả lời “không đủ dữ liệu để suy ra chủ đề” thay vì đoán mò. |
-
-## §5. Kiểu lỗi — 4 lớp chỗ khó + kịch bản (≥8)
-
-| Lớp | Tình huống cụ thể | Hành vi mong muốn | Nguyên tắc áp |
+| Tình huống | Lớp | Hành vi mong muốn | Nguyên tắc áp |
 |---|---|---|---|
-| ① Nguồn sự thật | Một câu hỏi về “embedding” và “vector DB” bị gộp thành cùng một topic dù thực chất học viên đang hỏi 2 khái niệm khác nhau | AI hiển thị phân nhóm theo từ khóa + gợi ý “hai mảng câu hỏi có liên quan nhưng chưa hoàn toàn cùng topic”; giảng viên xác nhận/đổi nhóm | G11, PAIR — Explainability |
-| ① Nguồn sự thật | Học viên hỏi “em không hiểu đoạn này ở slide 6” nhưng không có nội dung đủ để kết luận phần nào đang khó | AI không suy diễn chủ đề bằng cảm tính; thay vào đó tạo nhóm “mơ hồ” hoặc yêu cầu xác nhận | G10, PAIR — Graceful Failure |
-| ② Mơ hồ / thiếu thông tin | Một câu hỏi có từ khóa “RAG” nhưng không cho biết họ đang bối cảnh ở phần fine-tuning, retrieval, hay evaluation | AI trả về “có khả năng liên quan nhưng chưa đủ căn cứ”, không chốt một topic duy nhất | G10, G2 |
-| ② Mơ hồ / thiếu thông tin | Học viên viết câu hỏi ngắn “vẫn chưa hiểu chỗ này” mà không nêu rõ lý do | AI gộp vào nhóm “mơ hồ về nội dung” thay vì gán nhầm vào một topic cụ thể | G1, PAIR — Feedback + Control |
-| ③ Ngoài phạm vi / thẩm quyền | Người dùng yêu cầu AI tự quyết định “phần nào nên dạy lại trong buổi sau” mà không có tham khảo Rubric/slide | AI chỉ cung cấp “gợi ý chủ đề khó” và không tự động quyết định giảng tiếp | G1, G10 |
-| ③ Ngoài phạm vi / thẩm quyền | Người dùng đòi AI trả lời thay cho học viên từng câu hỏi trực tiếp | Hệ thống từ chối hoặc chuyển hướng: “Tôi chỉ hỗ trợ triage chủ đề, không thay thế phản hồi của giảng viên/TA” | G1, PAIR — Control |
-| ④ Đặc thù domain | AI nhầm “vector database” với “database truyền thống” vì từ khóa trùng, dẫn giảng viên dạy sai kiến thức cốt lõi | Hệ thống yêu cầu xem xét thêm quote và tài liệu học; không chốt nếu thiếu căn cứ | G2, G11 |
-| ④ Đặc thù domain | Một câu hỏi chứa thuật ngữ kỹ thuật nhưng thực chất là lỗi ngữ nghĩa trong bài giảng không phải kiến thức cốt lõi | AI ưu tiên gộp theo “mức độ khó thật” hơn là “có nhiều từ khóa”; người dùng có thể chỉnh nhãn | G9, G15 |
-| ① / ④ hỗn hợp | Topic “fine-tuning” được sinh ra từ 6 câu hỏi, nhưng 4 câu thực ra đang hỏi về “training/validation split” | AI hiển thị 2 nhãn khả dĩ và một số quote dẫn chứng; không tự gộp thành một nhãn duy nhất | G2, G11 |
-| ② / ③ hỗn hợp | Các tin nhắn logistics (“buổi nào bắt đầu?”, “link bài giảng đâu?”) bị nhầm thành vấn đề học tập | AI loại trừ các tin không phải câu hỏi học tập trước khi tính điểm topic | G10, PAIR — Errors + Graceful Failure |
+| “Embedding” và “vector database” bị gộp dù người học hỏi hai khái niệm khác nhau | ① Nguồn sự thật | Hiển thị hai nhãn khả dĩ và quote; không gộp chắc chắn | G11, Explainability |
+| “Không hiểu đoạn này ở slide 6” không có nội dung được trích | ① Nguồn sự thật | Đưa vào nhóm mơ hồ hoặc yêu cầu thêm context | G10, Graceful failure |
+| Có từ “RAG” nhưng không rõ hỏi retrieval, fine-tuning hay evaluation | ② Mơ hồ | `clarify`, confidence thấp, chỉ ra context còn thiếu | G2, G10 |
+| “Vẫn chưa hiểu chỗ này” không có topic | ② Mơ hồ | Không gán topic; yêu cầu người dùng bổ sung | G1, Feedback |
+| Yêu cầu AI tự quyết định buổi sau phải dạy gì | ③ Ngoài phạm vi | Giới hạn thành gợi ý có evidence; người dạy quyết định | G1, Human control |
+| Yêu cầu AI trả lời thay mọi học viên trên Discord | ③ Ngoài phạm vi | `reject` và nêu rõ hệ thống chỉ triage topic | Scope control |
+| “Link bài giảng đâu?” bị tính như lỗ hổng kiến thức | ③ Ngoài phạm vi | Loại thành logistics/product issue | G10, Graceful failure |
+| AI nhầm vector database với database truyền thống | ④ Đặc thù domain | Hiển thị evidence/context, yêu cầu giảng viên duyệt | G2, G11 |
+| Topic fine-tuning chứa cả câu hỏi về training/validation split | ④ Đặc thù domain | Tách topic hoặc đưa hai nhãn khả dĩ, không tự gộp | G9, Explainability |
+| Cùng prompt cho output embedding khác nhau, model bỏ qua cue “randomness” | ④ Đặc thù domain | Nhận diện nondeterminism; nếu chưa chắc thì `clarify` nhưng giữ cue làm evidence | G11, G17 |
 
-Mỗi lớp có ít nhất 2 case và tổng cộng ≥8 case; những kịch bản làm nhóm sợ nhất là case nhầm topic kỹ thuật cốt lõi và case gộp câu hỏi logistics vào kiến thức học tập.
+**Case demo đáng sợ nhất:** gộp sai hai khái niệm kỹ thuật cốt lõi rồi khiến giảng viên ôn sai, và biến yêu cầu ngoài phạm vi thành quyết định tự động. Hai case này có thể gây hại trực tiếp dù UI vẫn trông “đúng”.
 
 ## §6. Bốn đường đi của trải nghiệm
 
-- Happy path: Người dùng tải chatlog lớp học → AI phân tích 30–200 câu hỏi → hệ thống gộp thành các chủ đề, xếp hạng theo số câu hỏi lặp lại và mức độ khó → giảng viên xem quote minh chứng và xác nhận các chủ đề cần dạy lại.
-- Low-confidence (②): Nếu AI thấy chủ đề chỉ có 1–2 câu hỏi hoặc có mâu thuẫn ngữ cảnh, hệ thống hiển thị cảnh báo “độ tin cậy thấp” kèm gợi ý “xem xét thêm quote” thay vì chốt chủ đề.
-- Failure/không căn cứ (①): Nếu không có câu hỏi nào đủ rõ để gắn topic, AI không xuất một topic giả; thay vào đó hiển thị “Chưa có dữ liệu đủ để xác định chủ đề đang đau.”
-- Correction (user sửa): Người dùng có thể gộp hai chủ đề, đổi nhãn, thêm quote, bỏ topic không hợp lệ, hoặc yêu cầu AI chạy lại trên subset câu hỏi.
-- Khi bị đòi ngoài phạm vi (③): Nếu người dùng yêu cầu AI trả lời từng học viên hoặc quyết định nội dung giảng dạy hoàn toàn, hệ thống trả về “Tôi hỗ trợ triage và gợi ý chủ đề; quyết định cuối cùng thuộc về giảng viên/TA”.
-- Case đặc thù domain (④): Khi câu hỏi liên quan đến kiến thức kỹ thuật nhạy cảm hoặc dễ nhầm lẫn như embedding, vector DB, RAG, fine-tuning, AI không auto xác định mà phải dựa vào quote/căn cứ trong bài giảng và tài liệu lớp học; nếu thiếu căn cứ, báo “không đủ dữ liệu để chốt”.
+- **Happy path:** Giảng viên nạp CSV → hệ thống phân tích → chỉ giữ learning gaps → chuẩn hóa topic → xếp hạng theo signal/student/severity → mở evidence → giảng viên tự chọn hành động.
+- **Low-confidence (②):** Câu hỏi ít context hoặc topic mâu thuẫn → hiển thị `clarify`/human review, lý do và phần context cần bổ sung; không đưa vào kết luận chắc chắn.
+- **Failure/không căn cứ (①):** Không có câu hỏi đủ rõ → hiển thị “chưa đủ dữ liệu”, giữ turn ở nhóm `INSUFFICIENT_EVIDENCE`, không tạo topic giả.
+- **Correction (user sửa):** Mục tiêu sản phẩm là cho phép sửa label, gộp/tách topic, bỏ evidence sai và chạy lại subset; tại CP4 dashboard mới hiển thị evidence/filter, chưa hoàn tất các control này.
+- **Ngoài phạm vi (③):** Yêu cầu trả lời thay học viên, tự quyết định bài dạy hoặc bịa nội dung → `reject`/giới hạn scope, không thực hiện hành động đó.
+- **Đặc thù domain (④):** Với RAG, embedding, vector DB, fine-tuning, transformer/RNN → chỉ dùng cue và context có trong input; thiếu căn cứ thì không chốt.
 
 ## §7. Kiểm thử
 
-- Chiều chất lượng + định nghĩa kiểm chứng được:
-  1. Factuality (đúng có căn cứ): mỗi topic được hiển thị phải có ít nhất 1 quote hoặc 1 câu hỏi rõ ràng trong chatlog; không được suy đoán thiếu căn cứ.
-  2. Coverage: AI phải cover chủ đề chính của các câu hỏi trong chatlog, không bỏ sót trường hợp lặp lại quan trọng.
-  3. Relevance: topic được phát hiện phải nằm trong phạm vi học tập, không nhầm với logistics, admin, hoặc câu hỏi cá nhân.
-  4. Quality/clarity: topic được gán nhãn rõ ràng, không đem nhiều khái niệm lẫn nhau.
+- **Chiều chất lượng và định nghĩa kiểm chứng được:**
+  - **Behavior/action:** action `answer`, `clarify`, `reject` đúng expected behavior của từng case.
+  - **Evidence/factuality:** topic hoặc action phải trace được về `source`, `turn_id`/câu hỏi; không suy diễn khi evidence thiếu.
+  - **Scope precision:** logistics, out-of-scope, product/content issue không được đưa vào learning-gap map.
+  - **Domain distinction:** các cặp khái niệm dễ nhầm phải được tách hoặc yêu cầu làm rõ.
+  - **Coverage:** báo cáo đủ 20 case và breakdown theo 4 lớp, không chỉ báo một phần trăm tổng.
+- **Golden set:** [eval/golden_set_20.json](eval/golden_set_20.json), 20 case: 5 source-truth, 5 ambiguity, 5 scope, 5 domain; có input grid 4 chiều và ghi rõ 3 ô chưa phủ. Bộ gồm case từ chatlog/biến thể và case synthetic để kiểm tra từ chối.
+- **Công thức pass một case:** `pass = action đúng AND scope đúng AND không vi phạm điều kiện evidence`. Với case `answer`, phải có evidence traceable; với `clarify`, phải chỉ ra thiếu/mâu thuẫn context; với `reject`, phải từ chối đúng phạm vi.
+- **Quality bar đã khóa:** **“Đạt khi ≥80% case qua bộ 20 case, và 100% case ngoài phạm vi/logistics bị reject hoặc loại khỏi learning-gap map, 100% case thiếu evidence không được trả lời chắc chắn; mọi topic được xuất ra phải trace được về ít nhất một `turn_id` hoặc câu hỏi nguồn.”**
+- **Khai báo chưa hoàn thiện:** chưa có đo user validation; 3 ô input-grid chưa phủ là `ambiguous|logistics|generic|missing`, `ambiguous|out_of_scope|generic|missing`, `clear|learning|generic|missing`; chưa có regression test riêng cho correction UI. Run 02/03 đã chạy trên cùng golden set nhưng chưa thay thế quality bar.
 
-- Golden set (≥20 case theo cơ cấu trong guide §2.6, file trong eval/):
-  - Tạo file trong `eval/` với 20–30 case: 
-    - 8–10 case common/topic thường gặp (RAG, embedding, vector DB, fine-tuning, model evaluation, logistics, assignment confusion)
-    - 8–10 case khó / ambiguous / low-confidence
-    - 2–4 case hiếm (câu hỏi thay đổi theo ngữ cảnh, câu hỏi ngắn, câu hỏi có nội dung mơ hồ)
-    - ≥10 case lấy từ chatlog thật hoặc biến thể từ data mẫu.
-  - Dạng case: `input`, `expected_topic`, `confidence`, `reason`, `pass/fail`.
-  - Mục tiêu kiểm tra cả 4 lớp chỗ khó.
-  - User Input Grid đã được ghi ngay trong `eval/golden_set_20.json`: 4 chiều gồm `clarity`, `scope`, `technical_specificity`, `evidence_context`; mỗi case có `input_grid_cell`, và dataset liệt kê 3 ô chưa được phủ để tránh hiểu nhầm rằng 20 case đã bao phủ toàn bộ không gian đầu vào.
+### Kết quả các lượt chạy
 
-- Quality bar (chốt từ hạn chốt spec của khoá, giữ nguyên sau đó): "Đạt khi ≥ 80% số trường hợp qua bộ, và không có lỗi 'không căn cứ / chốt topic sai khi thiếu dữ liệu' vượt quá 2 trường hợp; tất cả topic được xuất ra phải có ít nhất 1 quote hoặc nghĩa vụ minh chứng rõ từ chatlog."
+| Lượt chạy | Kết quả | Đối chiếu quality bar | File / ghi chú |
+|---|---:|---|---|
+| Run 01 / CP3 | 18/20 = 90.0% | Vượt ngưỡng 80%; 5/5 ambiguity và 5/5 domain; 5/5 scope có action đúng, nhưng G10 trượt do evaluator lệch nhãn topic | [eval/run_01_results.json](eval/run_01_results.json) |
+| Run 02 / sau prompt fix | 20/20 = 100.0% | Đạt quality bar; 5/5 ở cả 4 lớp; G17 đã nhận diện `model stochasticity / nondeterminism` | [eval/run_02_results.json](eval/run_02_results.json); trace: `eval/model_trace_run02.jsonl` |
+| Run 03 / pre-demo | 20/20 = 100.0% | Tái lập đạt quality bar; không có failure analysis | [eval/run_03_results.json](eval/run_03_results.json); trace: `eval/model_trace_run03.jsonl` |
 
-- Kết quả các lượt chạy (bảng % — cập nhật đến trước CP6):
-
-  | Lượt chạy | % qua bộ | Ghi chú | File |
-  |---|---:|---|---|
-  | Run 01 (mốc CP3, prototype AI thật) | 90.0% | 18/20 case đạt; cải thiện rõ ở lớp 2, 3, 4 sau khi rành rõ prompt reject/clarify | `eval/run_01_results.json` |
-  | Run 02 (sau fix prompt) | TBD | Cần cải thiện prompt + lọc logistics / out-of-scope | `eval/run_02_results.json` |
-  | Run 03 (pre-demo) | TBD | Chốt quality bar cuối | `eval/run_03_results.json` |
-
-- Kết quả đo sơ bộ CP3 (đã chạy thực tế):
-  - Dataset: 20 case, bao phủ 4 lớp chỗ khó.
-  - Tỷ lệ đạt: 18/20 = 90.0%.
-  - Phân tích theo lớp:
-    - Lớp 1 (Nguồn sự thật): 4/5 đạt
-    - Lớp 2 (Mơ hồ / thiếu thông tin): 5/5 đạt
-    - Lớp 3 (Ngoài phạm vi / thẩm quyền): 4/5 đạt
-    - Lớp 4 (Đặc thù domain): 5/5 đạt
-  - Nguyên nhân lỗi còn lại: còn 2 case không đạt ở lớp 1 và lớp 3, chủ yếu do câu hỏi quá gọn hoặc quá rộng, cần thêm ranh giới “confirm / ask human” khi độ chắc thấp.
-  - Kết luận: prototype đã vượt ngưỡng ban đầu và đạt gần mục tiêu quality bar; hệ thống đang hoạt động ổn với phản hồi `answer`, `clarify`, `reject` rõ ràng.
-  - Failure analysis: file kết quả lưu `failure_analysis` cho từng case fail. G10 cho thấy hành vi `reject` đúng nhưng nhãn topic/evaluator chưa đồng nhất; G17 cho thấy model nhận ra câu hỏi cần làm rõ nhưng chưa trích xuất cụ thể tín hiệu “model randomness” để nhận diện nondeterminism.
-
-- Trace kỹ thuật:
-  - Mỗi lần gọi Ollama ghi một dòng JSONL vào `eval/model_trace.jsonl`, gồm timestamp, case ID, model, messages/prompt, raw response và lỗi nếu có.
+**Failure analysis:** Run 01 có hai lỗi artifact: G10 `reject` đúng nhưng evaluator cũ yêu cầu topic label hẹp hơn; G17 chưa giữ cue “model randomness”. Run 02 sửa evaluator để chấm scope theo `relevant=false` + `action=reject` và bổ sung rule nondeterminism; Run 03 xác nhận lại cùng prompt/model với 20/20 case đạt. Quality bar không thay đổi.
 
 ## §8. Phân công & kế hoạch
 
-- Phân công có tên:
-  - Spec & product framing: Trần Xuân Đức
-  - Evidence mining & chứng cứ: Nguyễn Thành Nam
-  - Prompt + eval: Nguyễn Lê Phước Tiến
-  - Prototype / code: Trần Xuân Đức
-  - Demo & validation: Nguyễn Thành Nam + Nguyễn Lê Phước Tiến
+| Đầu việc | Người phụ trách | Deliverable/tiêu chí |
+|---|---|---|
+| Spec, product framing, tích hợp prototype | Trần Xuân Đức | `spec.md`, dashboard, pipeline chạy được |
+| Evidence mining, chatlog và impact | Nguyễn Thành Nam | Số liệu mining, quote có mã nguồn, candidate data |
+| Prompt, taxonomy, golden set và eval | Nguyễn Lê Phước Tiến | prompt, classifier logic, `eval/golden_set_20.json`, phân tích fail |
+| Demo và validation | Nguyễn Thành Nam + Nguyễn Lê Phước Tiến | Kịch bản demo, log task, feedback người dùng |
 
-- Willing users (≥2 tên) + kế hoạch vòng validation *(bonus, nếu làm)*:
-  - Thu — sinh viên đang gặp vấn đề tương tự với câu hỏi lặp lại về kiến thức kỹ thuật.
-  - Kiên — sinh viên thường tìm lại nội dung cũ và cần tổng hợp các câu hỏi liên quan.
-  - Bình — sinh viên bối cảnh giống với điểm đau “không biết mình đã hiểu đúng hay chưa”.
-  - Kế hoạch validation: 1 buổi 10 phút/người, cho từng người dùng thử sản phẩm với task cụ thể “hãy xác định chủ đề nào lớp đang gặp khó nhất”, rồi log hành vi, quote, và mức độ tin cậy mà họ dành cho AI.
-
-- Multi-prototype (nếu làm): trục khác biệt của ≥2 phương án + lý do chọn:
-  1. Phương án A — “AI tự nhóm topic tự động”:
-     - Ưu điểm: tiết kiệm thời gian, phù hợp khi dữ liệu nhiều.
-     - Nhược điểm: dễ chốt topic sai khi dữ liệu không đủ rõ.
-  2. Phương án B — “AI gợi ý các chủ đề nhánh + người dùng xác nhận từng topic”:
-     - Ưu điểm: an toàn hơn, kiểm soát tốt, ít rủi ro về kiến thức sai.
-     - Nhược điểm: mất thời gian nhiều hơn nếu có quá nhiều câu hỏi.
-  - Lý do chọn: chọn phương án B ở mức mock/conditional vì cost-of-error của việc “giảng viên ôn sai chủ đề” cao hơn nhiều so với thời gian xác nhận thêm 1–2 topic.
+- **Willing users:** Thu, Kiên, Bình đã đồng ý thử; tối thiểu hai người sẽ tham gia vòng validation.
+- **Kế hoạch validation:** mỗi người dùng 10 phút; task là “tìm topic lớp cần ôn lại và mở evidence”; ghi thời gian hoàn thành, topic họ chọn, lúc họ nghi ngờ kết quả và quote feedback. Tiêu chí phụ: người dùng có phân biệt được `learning gap` với logistics/out-of-scope và có biết quyết định cuối thuộc về mình hay không. Chưa thực hiện vòng này tại thời điểm CP4.
+- **Multi-prototype:** A tự nhóm topic tự động nhanh hơn nhưng rủi ro chốt sai; B đề xuất topic nhánh và yêu cầu xác nhận an toàn hơn nhưng tốn thao tác. Chọn B/conditional về mặt sản phẩm vì cost-of-error của ôn sai cao hơn chi phí xác nhận 1–2 topic.
 
 ## §9. Changelog
-| Thời điểm | Đổi gì | Vì sao (trỏ về feedback/case nào) |
+
+| Thời điểm | Đổi gì | Vì sao / case liên quan |
 |---|---|---|
-| 18/9 — CP1 | Khóa JTBD: giảng viên/TA cần phát hiện chủ đề học viên gặp khó qua chatlog | Dựa trên 7/10 phản hồi khảo sát và các quote như “Em vẫn chưa hiểu sự khác nhau giữa RAG và fine-tuning.” |
-| 18/9 — sau review spec | Chốt scope: AI phân tích topic lặp lại, không trả lời từng câu hỏi của học viên | Tránh vượt phạm vi và giảm nguy cơ “AI tự quyết định nội dung giảng dạy” |
-| 18/9 — trước CP4 | Chốt thiết kế conditional, xác nhận phải có source + confidence | Theo pattern lỗi đầu tiên: AI dễ gộp topic nhầm khi thiếu căn cứ |
-| 18/9 — trước CP5 | Thêm golden set theo 4 lớp chỗ khó và quality bar ≥ 80% | Đảm bảo đánh giá bằng dữ liệu thực, không phải cảm tính |
-| Pre-demo | Cập nhật thông tin về feedback người dùng và hành vi sửa topic | Giữ ranh giới giữa “gợi ý” và “quyết định cuối cùng” |
-```
+| 17/9 — CP1 | Chốt user là giảng viên/TA và lát cắt class gap map | Canvas CP1, pain từ chatlog và willing users Thu/Bình/Kiên |
+| 18/9 — CP2 | Chốt pipeline candidate → signal → scope → topic → aggregate → dashboard | Cần một workflow từ chatlog đến evidence có thể demo |
+| 18/9 — CP3 | Thêm golden set 20 case và breakdown 4 lớp | Run 01 cho thấy lỗi ở source-truth và scope label; G10, G17 |
+| 18/9 — trước CP4 | Đổi mô tả từ mock sang working prototype; khai báo correction UI chưa xong | README_RUN và code hiện có LLM/Ollama, classifier, aggregator, dashboard; chưa có control sửa/gộp |
+| 18/9 — Run 02 | Bổ sung rule nhận diện model stochasticity/nondeterminism và sửa evaluator scope theo hành vi | G17 cần giữ cue `model randomness`; G10 đã reject đúng nhưng evaluator cũ lệch nhãn |
+| 18/9 — Run 03 | Chạy xác nhận độc lập trên cùng golden set, model và temperature | Tái lập Run 02: 20/20 = 100.0%, đủ 4 lớp |
+| 18/9 — CP4 | Khóa quality bar theo action, evidence và scope; giữ nguyên ngưỡng sau Run 02/03 | Ngăn hạ chuẩn sau khi thấy 90%; bảo vệ các case reject/clarify và traceability |
