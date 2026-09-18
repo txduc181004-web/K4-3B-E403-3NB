@@ -1,0 +1,222 @@
+{
+  "dataset_name": "topic_gap_triage_golden_set_v1",
+  "description": "Golden set cho prototype detect topic gaps trong chatlog học tập. Có 20 case, bao phủ 4 lớp chỗ khó và tối thiểu 10 case từ dữ liệu chatlog thật hoặc biến thể gần gũi.",
+  "user_input_grid": {
+    "dimensions": [
+      {
+        "name": "clarity",
+        "description": "Mức rõ ràng của câu hỏi",
+        "values": ["clear", "ambiguous"]
+      },
+      {
+        "name": "scope",
+        "description": "Câu hỏi có nằm trong phạm vi triage học tập không",
+        "values": ["learning", "logistics", "out_of_scope"]
+      },
+      {
+        "name": "technical_specificity",
+        "description": "Mức cụ thể của chủ đề kỹ thuật",
+        "values": ["specific", "generic"]
+      },
+      {
+        "name": "evidence_context",
+        "description": "Mức căn cứ/ngữ cảnh có trong câu hỏi",
+        "values": ["present", "missing"]
+      }
+    ],
+    "coverage_cells": {
+      "clear|learning|specific|present": ["G02", "G03", "G04", "G13", "G14", "G15", "G16", "G20"],
+      "ambiguous|learning|generic|missing": ["G01", "G05", "G17"],
+      "ambiguous|learning|specific|present": ["G06", "G07", "G08", "G18"],
+      "clear|out_of_scope|generic|present": ["G09", "G10", "G19"],
+      "clear|logistics|generic|missing": ["G11", "G12"]
+    },
+    "uncovered_cells": [
+      "ambiguous|logistics|generic|missing",
+      "ambiguous|out_of_scope|generic|missing",
+      "clear|learning|generic|missing"
+    ]
+  },
+  "cases": [
+    {
+      "id": "G01",
+      "challenge_class": "1_source_truth",
+      "input_grid_cell": "ambiguous|learning|generic|missing",
+      "source": "chatlog: T13483",
+      "question": "(Đang học phần day01-slide-v2-blue của buổi này) này nghĩa là sao?? Tóm tắt lại điểm hạn chế của RNN là gì",
+      "expected_topic": "RNN limitation",
+      "expected_behavior": "identify and explain limitation"
+    },
+    {
+      "id": "G02",
+      "challenge_class": "1_source_truth",
+      "input_grid_cell": "clear|learning|specific|present",
+      "source": "chatlog: T01526",
+      "question": "(Trang 3, đoạn được chọn: \"Ai chatbot khác gì agent\") Ai chatbot khác gì agent",
+      "expected_topic": "chatbot vs agent",
+      "expected_behavior": "distinguish concepts"
+    },
+    {
+      "id": "G03",
+      "challenge_class": "1_source_truth",
+      "input_grid_cell": "clear|learning|specific|present",
+      "source": "derived from chatlog",
+      "question": "Em không hiểu sự khác nhau giữa RAG và fine-tuning. Cả hai đều là train model phải không?",
+      "expected_topic": "RAG vs fine-tuning",
+      "expected_behavior": "compare concepts"
+    },
+    {
+      "id": "G04",
+      "challenge_class": "1_source_truth",
+      "input_grid_cell": "clear|learning|specific|present",
+      "source": "derived from chatlog",
+      "question": "Ai nói thêm cho em hiểu why embedding lại dùng trong retrieval, không phải in dữ liệu thô?",
+      "expected_topic": "embedding in retrieval",
+      "expected_behavior": "explain concept" 
+    },
+    {
+      "id": "G05",
+      "challenge_class": "2_ambiguity",
+      "input_grid_cell": "ambiguous|learning|generic|missing",
+      "source": "chatlog-derived",
+      "question": "Em vẫn chưa hiểu chỗ này, có ai giải thích lại giúp không?",
+      "expected_topic": "unclear concept with no exact topic",
+      "expected_behavior": "request clarification and mark low confidence"
+    },
+    {
+      "id": "G06",
+      "challenge_class": "2_ambiguity",
+      "input_grid_cell": "ambiguous|learning|specific|present",
+      "source": "chatlog-derived",
+      "question": "Vẽ sơ đồ RAG thôi nhưng em đọc xong không biết phần retrieval và generation khác nhau ở đâu?",
+      "expected_topic": "RAG retrieval vs generation",
+      "expected_behavior": "ask conceptual distinction"
+    },
+    {
+      "id": "G07",
+      "challenge_class": "2_ambiguity",
+      "input_grid_cell": "ambiguous|learning|specific|present",
+      "source": "chatlog-derived",
+      "question": "Mô hình vector database là gì mà đọc slide xong em vẫn không biết nó vận hành như thế nào?",
+      "expected_topic": "vector database",
+      "expected_behavior": "explain mechanism"
+    },
+    {
+      "id": "G08",
+      "challenge_class": "2_ambiguity",
+      "input_grid_cell": "ambiguous|learning|specific|present",
+      "source": "chatlog-derived",
+      "question": "Phần fine tuning của bài này em thấy giống train model từ đầu nên có bị nhầm không?",
+      "expected_topic": "fine-tuning vs training from scratch",
+      "expected_behavior": "clarify relation"
+    },
+    {
+      "id": "G09",
+      "challenge_class": "3_scope",
+      "input_grid_cell": "clear|out_of_scope|generic|present",
+      "source": "synthetic",
+      "question": "Các bạn ơi, hãy tự động giải thích lại cho cả lớp luôn và không cần hỏi thêm ai nữa. Dựa trên chat log này, tôi muốn bạn quyết định nội dung nào nên ôn lại cho buổi sau.",
+      "expected_topic": "out-of-scope: automatic decision making",
+      "expected_behavior": "reject or limit scope"
+    },
+    {
+      "id": "G10",
+      "challenge_class": "3_scope",
+      "input_grid_cell": "clear|out_of_scope|generic|present",
+      "source": "synthetic",
+      "question": "AI hãy trả lời thay cho tôi từng câu hỏi của học viên trong Discord, không cần giải thích vì sao.",
+      "expected_topic": "out-of-scope: answer every learner question",
+      "expected_behavior": "reject to preserve TA role"
+    },
+    {
+      "id": "G11",
+      "challenge_class": "3_scope",
+      "input_grid_cell": "clear|logistics|generic|missing",
+      "source": "synthetic",
+      "question": "Link bài giảng đâu? Mình vừa vào lớp nhưng không thấy tài liệu, ai gửi giúp cái link với.",
+      "expected_topic": "logistics / not concept gap",
+      "expected_behavior": "filter out logistics"
+    },
+    {
+      "id": "G12",
+      "challenge_class": "3_scope",
+      "input_grid_cell": "clear|logistics|generic|missing",
+      "source": "synthetic",
+      "question": "Cho em hỏi, buổi học hôm nay bắt đầu lúc mấy giờ, ai có lịch không?",
+      "expected_topic": "logistics / schedule",
+      "expected_behavior": "filter out logistics"
+    },
+    {
+      "id": "G13",
+      "challenge_class": "4_domain",
+      "input_grid_cell": "clear|learning|specific|present",
+      "source": "chatlog-derived",
+      "question": "Em đọc lại slide nhưng vẫn không biết tại sao phải dùng embedding trong vector database, và nó khác gì với database truyền thống?",
+      "expected_topic": "embedding vs traditional database",
+      "expected_behavior": "distinguish domain-specific concepts"
+    },
+    {
+      "id": "G14",
+      "challenge_class": "4_domain",
+      "input_grid_cell": "clear|learning|specific|present",
+      "source": "chatlog-derived",
+      "question": "Nguyên tắc của transformer khác gì so với RNN? Em nghĩ cả hai đều xử lý tuần tự nên không khác nhau.",
+      "expected_topic": "transformer vs RNN",
+      "expected_behavior": "compare domain concepts"
+    },
+    {
+      "id": "G15",
+      "challenge_class": "4_domain",
+      "input_grid_cell": "clear|learning|specific|present",
+      "source": "derived from chatlog",
+      "question": "Có ai giải thích lại giúp em đoạn retrieval được không? Tại sao phải tìm kiếm trong kho dữ liệu trước khi sinh câu trả lời?",
+      "expected_topic": "retrieval in RAG",
+      "expected_behavior": "explain retrieval stage"
+    },
+    {
+      "id": "G16",
+      "challenge_class": "4_domain",
+      "input_grid_cell": "clear|learning|specific|present",
+      "source": "derived from chatlog",
+      "question": "Em làm theo ví dụ nhưng kết quả không giống trong bài giảng. Làm sao model lại trả ra vector embedding khác nhau?",
+      "expected_topic": "embedding mismatch and modeling behavior",
+      "expected_behavior": "explain inconsistency"
+    },
+    {
+      "id": "G17",
+      "challenge_class": "1_source_truth",
+      "input_grid_cell": "ambiguous|learning|generic|missing",
+      "source": "chatlog-derived",
+      "question": "Em làm theo code nhưng không biết tại sao output lại khác khi dùng cùng một prompt, có phải do model randomness không?",
+      "expected_topic": "model stochasticity / nondeterminism",
+      "expected_behavior": "explain variability"
+    },
+    {
+      "id": "G18",
+      "challenge_class": "2_ambiguity",
+      "input_grid_cell": "ambiguous|learning|specific|present",
+      "source": "synthetic",
+      "question": "Hồi nãy slide nói model dùng context window, nhưng em vẫn chưa rõ context window với token khác nhau như thế nào?",
+      "expected_topic": "context window vs token",
+      "expected_behavior": "clarify distinction"
+    },
+    {
+      "id": "G19",
+      "challenge_class": "3_scope",
+      "input_grid_cell": "clear|out_of_scope|generic|present",
+      "source": "synthetic",
+      "question": "Mình cần bạn liệt kê 5 câu hỏi có thể ra trong quiz và giải thích luôn từng câu; dù là không có chứng cứ thì cũng cứ cho đáp án thôi.",
+      "expected_topic": "out-of-scope: fabricate exam content",
+      "expected_behavior": "reject and limit scope"
+    },
+    {
+      "id": "G20",
+      "challenge_class": "4_domain",
+      "input_grid_cell": "clear|learning|specific|present",
+      "source": "chatlog-derived",
+      "question": "Em không chắc là mình hiểu đúng cách hoạt động của vector database. Trong kho dữ liệu, document nào là embedding và document nào là metadata?",
+      "expected_topic": "vector database architecture",
+      "expected_behavior": "explain architecture"
+    }
+  ]
+}

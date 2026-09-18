@@ -1,0 +1,304 @@
+{
+  "summary": {
+    "dataset": "topic_gap_triage_golden_set_v1",
+    "total_cases": 20,
+    "passed_cases": 18,
+    "pass_rate": 90.0,
+    "challenge_breakdown": {
+      "1_source_truth": {
+        "total": 5,
+        "passed": 4
+      },
+      "2_ambiguity": {
+        "total": 5,
+        "passed": 5
+      },
+      "3_scope": {
+        "total": 5,
+        "passed": 4
+      },
+      "4_domain": {
+        "total": 5,
+        "passed": 5
+      }
+    },
+      "failure_analysis": [
+        {
+          "id": "G10",
+          "predicted_action": "reject",
+          "predicted_topic": "out-of-scope",
+          "analysis": "Model action is appropriate, but evaluator expected a narrower topic label; scoring should prioritize scope action over topic wording."
+        },
+        {
+          "id": "G17",
+          "predicted_action": "clarify",
+          "predicted_topic": "unclear concept",
+          "analysis": "The question contains the concrete cue 'model randomness', but the model generalized it to unclear concept instead of identifying nondeterminism."
+        }
+      ]
+  },
+  "evaluations": [
+    {
+      "id": "G01",
+      "challenge_class": "1_source_truth",
+      "source": "chatlog: T13483",
+      "expected_topic": "RNN limitation",
+      "predicted_topic": "unclear concept",
+      "confidence": 2,
+      "action": "clarify",
+      "passed": true,
+      "needs_human_review": true,
+      "reason": "Câu hỏi không rõ ràng về khái niệm RNN và điểm hạn chế của nó",
+      "evidence_quote": "tóm tắt lại điểm hạn chế của RNN là gì"
+    },
+    {
+      "id": "G02",
+      "challenge_class": "1_source_truth",
+      "source": "chatlog: T01526",
+      "expected_topic": "chatbot vs agent",
+      "predicted_topic": "chatbot vs agent",
+      "confidence": 1,
+      "action": "answer",
+      "passed": true,
+      "needs_human_review": false,
+      "reason": "Câu hỏi liên quan đến phân biệt giữa chatbot và agent",
+      "evidence_quote": ""
+    },
+    {
+      "id": "G03",
+      "challenge_class": "1_source_truth",
+      "source": "derived from chatlog",
+      "expected_topic": "RAG vs fine-tuning",
+      "predicted_topic": "unclear concept",
+      "confidence": 1,
+      "action": "clarify",
+      "passed": true,
+      "needs_human_review": false,
+      "reason": "Câu hỏi yêu cầu phân biệt giữa RAG và fine-tuning, nhưng không rõ cụ thể hơn.",
+      "evidence_quote": "Cả hai đều là train model phải không?"
+    },
+    {
+      "id": "G04",
+      "challenge_class": "1_source_truth",
+      "source": "derived from chatlog",
+      "expected_topic": "embedding in retrieval",
+      "predicted_topic": "unclear concept",
+      "confidence": 1,
+      "action": "clarify",
+      "passed": true,
+      "needs_human_review": false,
+      "reason": "Câu hỏi đề cập đến lý do sử dụng embedding trong retrieval thay vì dữ liệu gốc",
+      "evidence_quote": "Ai nói thêm cho em hiểu why embedding lại dùng trong retrieval, không phải in dữ liệu thô?"
+    },
+    {
+      "id": "G05",
+      "challenge_class": "2_ambiguity",
+      "source": "chatlog-derived",
+      "expected_topic": "unclear concept with no exact topic",
+      "predicted_topic": "unclear concept",
+      "confidence": 1,
+      "action": "clarify",
+      "passed": true,
+      "needs_human_review": true,
+      "reason": "Câu hỏi yêu cầu giảng viên giải thích lại cho học viên",
+      "evidence_quote": ""
+    },
+    {
+      "id": "G06",
+      "challenge_class": "2_ambiguity",
+      "source": "chatlog-derived",
+      "expected_topic": "RAG retrieval vs generation",
+      "predicted_topic": "unclear concept",
+      "confidence": 1,
+      "action": "clarify",
+      "passed": true,
+      "needs_human_review": false,
+      "reason": "Câu hỏi yêu cầu phân biệt giữa hai khái niệm trong RAG mà học viên chưa hiểu rõ",
+      "evidence_quote": "Vẽ sơ đồ RAG nhưng không biết retrieval và generation khác nhau ở đâu?"
+    },
+    {
+      "id": "G07",
+      "challenge_class": "2_ambiguity",
+      "source": "chatlog-derived",
+      "expected_topic": "vector database",
+      "predicted_topic": "unclear concept",
+      "confidence": 1,
+      "action": "clarify",
+      "passed": true,
+      "needs_human_review": false,
+      "reason": "Câu hỏi liên quan đến khái niệm kỹ thuật học tập và chưa rõ ràng về cách vận hành của mô hình vector database.",
+      "evidence_quote": "đọc slide xong em vẫn không biết nó vận hành như thế nào?"
+    },
+    {
+      "id": "G08",
+      "challenge_class": "2_ambiguity",
+      "source": "chatlog-derived",
+      "expected_topic": "fine-tuning vs training from scratch",
+      "predicted_topic": "unclear concept",
+      "confidence": 1,
+      "action": "clarify",
+      "passed": true,
+      "needs_human_review": false,
+      "reason": "Câu hỏi đề cập đến sự nhầm lẫn giữa fine-tuning và train model từ đầu, cần xác minh thông tin cụ thể hơn.",
+      "evidence_quote": "Phần fine tuning của bài này em thấy giống train model từ đầu nên có bị nhầm không?"
+    },
+    {
+      "id": "G09",
+      "challenge_class": "3_scope",
+      "source": "synthetic",
+      "expected_topic": "out-of-scope: automatic decision making",
+      "predicted_topic": "out-of-scope",
+      "confidence": 1,
+      "action": "reject",
+      "passed": true,
+      "needs_human_review": false,
+      "reason": "Câu hỏi yêu cầu AI quyết định nội dung ôn tập cho cả lớp, ngoài vai trò hỗ trợ giảng viên.",
+      "evidence_quote": "Hãy tự động giải thích lại cho cả lớp luôn và không cần hỏi thêm ai nữa. Dựa trên chat log này, tôi muốn bạn quyết định nội dung nào nên ôn lại cho buổi sau."
+    },
+    {
+      "id": "G10",
+      "challenge_class": "3_scope",
+      "source": "synthetic",
+      "expected_topic": "out-of-scope: answer every learner question",
+      "predicted_topic": "out-of-scope",
+      "confidence": 1,
+      "action": "reject",
+      "passed": false,
+      "needs_human_review": false,
+      "reason": "Câu hỏi yêu cầu AI thay mặt học viên trả lời các câu hỏi trong Discord, ngoài vai trò hỗ trợ giảng viên.",
+      "evidence_quote": "AI hãy trả lời thay cho tôi từng câu hỏi của học viên trong Discord, không cần giải thích vì sao.",
+      "failure_analysis": "Model action is appropriate, but evaluator expected a narrower topic label; scoring should prioritize scope action over topic wording."
+    },
+    {
+      "id": "G11",
+      "challenge_class": "3_scope",
+      "source": "synthetic",
+      "expected_topic": "logistics / not concept gap",
+      "predicted_topic": "logistics",
+      "confidence": 1,
+      "action": "reject",
+      "passed": true,
+      "needs_human_review": false,
+      "reason": "Câu hỏi liên quan đến logistics/admin chứ không phải kiến thức học tập",
+      "evidence_quote": "Link bài giảng đâu? Mình vừa vào lớp nhưng không thấy tài liệu, ai gửi giúp cái link với."
+    },
+    {
+      "id": "G12",
+      "challenge_class": "3_scope",
+      "source": "synthetic",
+      "expected_topic": "logistics / schedule",
+      "predicted_topic": "logistics",
+      "confidence": 1,
+      "action": "reject",
+      "passed": true,
+      "needs_human_review": false,
+      "reason": "Câu hỏi về lịch học",
+      "evidence_quote": "buổi học hôm nay bắt đầu lúc mấy giờ, ai có lịch không?"
+    },
+    {
+      "id": "G13",
+      "challenge_class": "4_domain",
+      "source": "chatlog-derived",
+      "expected_topic": "embedding vs traditional database",
+      "predicted_topic": "unclear concept",
+      "confidence": 1,
+      "action": "clarify",
+      "passed": true,
+      "needs_human_review": false,
+      "reason": "Câu hỏi liên quan đến lý giải sự khác biệt giữa embedding và database truyền thống trong vector database",
+      "evidence_quote": "tại sao phải dùng embedding trong vector database, và nó khác gì với database truyền thống?"
+    },
+    {
+      "id": "G14",
+      "challenge_class": "4_domain",
+      "source": "chatlog-derived",
+      "expected_topic": "transformer vs RNN",
+      "predicted_topic": "unclear concept",
+      "confidence": 1,
+      "action": "clarify",
+      "passed": true,
+      "needs_human_review": false,
+      "reason": "Câu hỏi không rõ ràng về sự khác biệt giữa Transformer và RNN",
+      "evidence_quote": "Nguyên tắc của transformer khác gì so với RNN? Em nghĩ cả hai đều xử lý tuần tự nên không khác nhau."
+    },
+    {
+      "id": "G15",
+      "challenge_class": "4_domain",
+      "source": "derived from chatlog",
+      "expected_topic": "retrieval in RAG",
+      "predicted_topic": "unclear concept",
+      "confidence": 1,
+      "action": "clarify",
+      "passed": true,
+      "needs_human_review": false,
+      "reason": "Câu hỏi yêu cầu giải thích về khái niệm retrieval và nó liên quan đến việc tìm kiếm trong kho dữ liệu trước khi sinh câu trả lời",
+      "evidence_quote": "Có ai giải thích lại giúp em đoạn retrieval được không? Tại sao phải tìm kiếm trong kho dữ liệu trước khi sinh câu trả lời?"
+    },
+    {
+      "id": "G16",
+      "challenge_class": "4_domain",
+      "source": "derived from chatlog",
+      "expected_topic": "embedding mismatch and modeling behavior",
+      "predicted_topic": "unclear concept",
+      "confidence": 1,
+      "action": "clarify",
+      "passed": true,
+      "needs_human_review": false,
+      "reason": "Câu hỏi không rõ ràng về nguyên nhân cụ thể của sự khác biệt trong vector embedding.",
+      "evidence_quote": ""
+    },
+    {
+      "id": "G17",
+      "challenge_class": "1_source_truth",
+      "source": "chatlog-derived",
+      "expected_topic": "model stochasticity / nondeterminism",
+      "predicted_topic": "unclear concept",
+      "confidence": 1,
+      "action": "clarify",
+      "passed": false,
+      "needs_human_review": false,
+      "reason": "Câu hỏi liên quan đến hiểu lầm về tính chất của model randomness trong các prompt",
+      "evidence_quote": "có phải do model randomness không?",
+      "failure_analysis": "The question contains the concrete cue 'model randomness', but the model generalized it to unclear concept instead of identifying nondeterminism."
+    },
+    {
+      "id": "G18",
+      "challenge_class": "2_ambiguity",
+      "source": "synthetic",
+      "expected_topic": "context window vs token",
+      "predicted_topic": "unclear concept",
+      "confidence": 1,
+      "action": "clarify",
+      "passed": true,
+      "needs_human_review": false,
+      "reason": "Câu hỏi đề cập đến khái niệm context window trong mô hình, nhưng học viên chưa rõ cách hoạt động khi sử dụng token khác nhau.",
+      "evidence_quote": "Hồi nãy slide nói model dùng context window, nhưng em vẫn chưa rõ context window với token khác nhau như thế nào?"
+    },
+    {
+      "id": "G19",
+      "challenge_class": "3_scope",
+      "source": "synthetic",
+      "expected_topic": "out-of-scope: fabricate exam content",
+      "predicted_topic": "out-of-scope",
+      "confidence": 2,
+      "action": "reject",
+      "passed": true,
+      "needs_human_review": false,
+      "reason": "Câu hỏi yêu cầu AI trả lời thay học viên, không phù hợp với vai trò trợ lý học tập.",
+      "evidence_quote": "hãy trả lời thay cho tôi từng câu hỏi của học viên"
+    },
+    {
+      "id": "G20",
+      "challenge_class": "4_domain",
+      "source": "chatlog-derived",
+      "expected_topic": "vector database architecture",
+      "predicted_topic": "unclear concept",
+      "confidence": 1,
+      "action": "clarify",
+      "passed": true,
+      "needs_human_review": false,
+      "reason": "Câu hỏi yêu cầu giải thích về khái niệm vector database, cụ thể là về embedding và metadata.",
+      "evidence_quote": "em không chắc là mình hiểu đúng cách hoạt động của vector database. Trong kho dữ liệu, document nào là embedding và document nào là metadata?"
+    }
+  ]
+}
