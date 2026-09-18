@@ -5,14 +5,21 @@ Mục tiêu của prototype này là giúp giảng viên/TA xác định chủ �
 ## Thành phần
 
 - `topic_gap_triage.py`: module AI thật, dùng Ollama `qwen2.5:3b`
+- `live_triage_app.py`: giao diện Streamlit tương tác real-time (phục vụ quay video 30s CP3)
 - `../eval/golden_set_20.json`: golden set 20 case
 - `../eval/run_01_results.json`: kết quả chạy thực tế bộ test
 - `../eval/model_trace.jsonl`: trace từng lần gọi model, gồm prompt/messages và raw response
 
 ## Cách chạy
 
+1. **Chạy đánh giá tự động 20 case:**
 ```bash
 python codebase/topic_gap_triage.py
+```
+
+2. **Chạy giao diện tương tác trực tiếp (Live Demo 30s):**
+```bash
+streamlit run codebase/live_triage_app.py
 ```
 
 ## Mục đích CP3

@@ -148,13 +148,19 @@ Mỗi lớp có ít nhất 2 case và tổng cộng ≥8 case; những kịch b�
   4. Quality/clarity: topic được gán nhãn rõ ràng, không đem nhiều khái niệm lẫn nhau.
 
 - Golden set (≥20 case theo cơ cấu trong guide §2.6, file trong eval/):
-  - Tạo file trong `eval/` với 20–30 case: 
-    - 8–10 case common/topic thường gặp (RAG, embedding, vector DB, fine-tuning, model evaluation, logistics, assignment confusion)
-    - 8–10 case khó / ambiguous / low-confidence
-    - 2–4 case hiếm (câu hỏi thay đổi theo ngữ cảnh, câu hỏi ngắn, câu hỏi có nội dung mơ hồ)
-    - ≥10 case lấy từ chatlog thật hoặc biến thể từ data mẫu.
-  - Dạng case: `input`, `expected_topic`, `confidence`, `reason`, `pass/fail`.
-  - Mục tiêu kiểm tra cả 4 lớp chỗ khó.
+  - File lưu tại: `eval/golden_set_20.json` (tổng cộng 20 case, mã G01 đến G20).
+  - Phân bổ theo 4 lớp chỗ khó:
+    - ① Nguồn sự thật (5 case): G01, G02, G03, G04, G08 (kiểm tra đối chiếu khái niệm, cite slide).
+    - ② Mơ hồ / thiếu thông tin (5 case): G05, G06, G07, G17, G18 (câu hỏi ngắn, thiếu context, cần clarify).
+    - ③ Ngoài phạm vi / thẩm quyền (5 case): G09, G10, G11, G12, G19 (logistics, admin, đòi AI trả lời thay/tự quyết định bài dạy).
+    - ④ Đặc thù domain (5 case): G13, G14, G15, G16, G20 (khái niệm AI chuyên sâu: RAG vs Fine-tuning, Vector DB, RNN vs Transformer, ReAct).
+  - Tỷ lệ nguồn: 10 case lấy hoặc phát triển trực tiếp từ chatlog thật (G01 trích từ `T13483`, G02 trích từ `T01526`, G03–G08 từ chatlog).
+  - Phủ bằng **User Input Grid** 4 chiều:
+    - `clarity` (clear, ambiguous)
+    - `scope` (learning, logistics, out_of_scope)
+    - `technical_specificity` (specific, generic)
+    - `evidence_context` (present, missing)
+    - Các ô chưa phủ (lỗ hổng coverage để mở rộng sau): `ambiguous|logistics|generic|missing`, `ambiguous|out_of_scope|generic|missing`, `clear|learning|generic|missing`.
 
 - Quality bar (chốt từ hạn chốt spec của khoá, giữ nguyên sau đó): "Đạt khi ≥ 80% số trường hợp qua bộ, và không có lỗi 'không căn cứ / chốt topic sai khi thiếu dữ liệu' vượt quá 2 trường hợp; tất cả topic được xuất ra phải có ít nhất 1 quote hoặc nghĩa vụ minh chứng rõ từ chatlog."
 
@@ -162,8 +168,8 @@ Mỗi lớp có ít nhất 2 case và tổng cộng ≥8 case; những kịch b�
 
   | Lượt chạy | % qua bộ | Ghi chú | File |
   |---|---:|---|---|
-  | Run 01 (mốc spec) | TBD | Chưa chạy | `eval/run-01.csv` |
-  | Run 02 (sau fix prompt) | TBD | Cập nhật sau khi chỉnh logic | `eval/run-02.csv` |
+  | Run 01 (CP3 baseline) | 90.0% (18/20) | Đạt 18/20 case. Phân bổ: Lớp ① (4/5), Lớp ② (5/5), Lớp ③ (4/5), Lớp ④ (5/5). 2 case chưa đạt: G10 (hành vi reject đúng nhưng lệch nhãn kỳ vọng), G17 (nhận diện mơ hồ thay vì bắt đúng từ khóa randomness) | `eval/run_01_results.json` |
+  | Run 02 (sau fix prompt) | TBD | Cập nhật sau khi tinh chỉnh prompt/scoring | `eval/run-02.csv` |
   | Run 03 (pre-demo) | TBD | Chốt quality bar cuối | `eval/run-03.csv` |
 
 ## §8. Phân công & kế hoạch
