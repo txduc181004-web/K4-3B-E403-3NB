@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -18,7 +19,12 @@ from app.analyzer import MODEL, analyze_batch
 # CONFIG
 # ============================================================
 
-DATA_PATH = BASE_DIR / "data" / "sample" / "gap_map.json"
+DATA_PATH = Path(
+    os.getenv(
+        "VLEARN_GAP_MAP_PATH",
+        str(BASE_DIR / "data" / "sample" / "gap_map.json"),
+    )
+)
 
 
 st.set_page_config(
@@ -189,9 +195,20 @@ st.markdown(
 data = load_gap_map()
 
 if data is None:
-    st.error(f"Không tìm thấy file: {DATA_PATH}")
-    st.code("python3 -m app.aggregator")
-    st.stop()
+    # Private data is optional; the live AI demo can run without a bundled map.
+    data = {
+        "topics": [],
+        "source_results": 0,
+        "valid_learning_gap_signals": 0,
+        "skipped_non_signals": 0,
+        "skipped_none_signals": 0,
+        "skipped_non_learning": 0,
+    }
+    st.info(
+        "Chưa nạp Class Gap Map riêng. Dữ liệu lớp học không được public; "
+        "bạn có thể dùng Live AI analysis hoặc đặt VLEARN_GAP_MAP_PATH tới "
+        "file cục bộ trên máy."
+    )
 
 
 topics = get_topics(data)
