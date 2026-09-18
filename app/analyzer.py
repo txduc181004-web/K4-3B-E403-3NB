@@ -3,24 +3,30 @@ import os
 import time
 
 import pandas as pd
-import ollama
-from dotenv import load_dotenv
+from google import genai
+
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:
+    def load_dotenv():
+        return False
 
 from app.prompts import SYSTEM_PROMPT
 
 
 load_dotenv()
 
-MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
-HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+MODEL = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
+
+client = genai.Client(
+    api_key=os.getenv("GEMINI_API_KEY")
+)
+
 
 INPUT_FILE = "data/sample/candidate_questions.csv"
 OUTPUT_FILE = "data/sample/ai_analysis.json"
 
-BATCH_SIZE = 10
-
-
-client = ollama.Client(host=HOST)
+BATCH_SIZE = 5
 
 
 def build_prompt(rows):
@@ -51,27 +57,52 @@ Hãy trả về JSON đúng format đã yêu cầu.
 def analyze_batch(rows):
     prompt = build_prompt(rows)
 
-    response = client.chat(
+    full_prompt = f"""
+{SYSTEM_PROMPT}
+
+{prompt}
+"""
+
+    response = client.models.generate_content(
         model=MODEL,
-        messages=[
-            {
-                "role": "system",
-                "content": SYSTEM_PROMPT,
-            },
-            {
-                "role": "user",
-                "content": prompt,
-            },
-        ],
-        format="json",
-        options={
+        contents=full_prompt,
+        config={
             "temperature": 0,
+            "response_mime_type": "application/json",
         },
     )
 
-    content = response["message"]["content"]
+    return json.loads(response.text)
 
-    return json.loads(content)
+
+def analyze_batch_with_retry(rows, max_retries=5):
+    for attempt in range(max_retries):
+        try:
+            return analyze_batch(rows)
+
+        except Exception as e:
+            error_message = str(e)
+
+            # Chỉ retry với lỗi Gemini tạm thời
+            if (
+                "503" not in error_message
+                and "UNAVAILABLE" not in error_message
+            ):
+                raise
+
+            wait_time = min(2 ** attempt * 2, 60)
+
+            print(
+                f"  Gemini unavailable. "
+                f"Retry {attempt + 1}/{max_retries} "
+                f"after {wait_time}s..."
+            )
+
+            time.sleep(wait_time)
+
+    raise RuntimeError(
+        f"Gemini vẫn không khả dụng sau {max_retries} lần thử."
+    )
 
 
 def main():
@@ -101,9 +132,10 @@ def main():
         )
 
         try:
-            result = analyze_batch(batch)
+            result = analyze_batch_with_retry(batch)
 
             results = result.get("results", [])
+
             metadata = {
                 str(row["turn_id"]): {
                     "student": str(row["student"]),

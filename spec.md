@@ -3,7 +3,7 @@
 > Cấu trúc phủ đúng "SPEC 8 phần" của chương trình: Bằng chứng (§1-§2) · Lát cắt (§4) · Canvas (đính kèm CP1) · Augment/Automate (§4) · 4 đường đi của trải nghiệm (§6) · Kiểu lỗi (§5) · Kiểm thử (§7) · Phân công (§8). Hướng dẫn viết từng mục: `02-guide.md`.
 
 ```markdown
-**# AI SPEC — Bản đồ lỗ hổng của lớp cho giảng viên · Nhóm [XX] · Zone [X]**
+**# AI SPEC — Bản đồ lỗ hổng của lớp cho giảng viên · Nhóm [3NB] · Zone [X]**
 
 Hướng: [x] A — VLearn  [ ] B — Trợ lý Học viên  [ ] C — Làn mở
 
@@ -148,6 +148,7 @@ Mỗi lớp có ít nhất 2 case và tổng cộng ≥8 case; những kịch b�
   4. Quality/clarity: topic được gán nhãn rõ ràng, không đem nhiều khái niệm lẫn nhau.
 
 - Golden set (≥20 case theo cơ cấu trong guide §2.6, file trong eval/):
+<<<<<<< HEAD
   - File lưu tại: `eval/golden_set_20.json` (tổng cộng 20 case, mã G01 đến G20).
   - Phân bổ theo 4 lớp chỗ khó:
     - ① Nguồn sự thật (5 case): G01, G02, G03, G04, G08 (kiểm tra đối chiếu khái niệm, cite slide).
@@ -161,6 +162,16 @@ Mỗi lớp có ít nhất 2 case và tổng cộng ≥8 case; những kịch b�
     - `technical_specificity` (specific, generic)
     - `evidence_context` (present, missing)
     - Các ô chưa phủ (lỗ hổng coverage để mở rộng sau): `ambiguous|logistics|generic|missing`, `ambiguous|out_of_scope|generic|missing`, `clear|learning|generic|missing`.
+=======
+  - Tạo file trong `eval/` với 20–30 case: 
+    - 8–10 case common/topic thường gặp (RAG, embedding, vector DB, fine-tuning, model evaluation, logistics, assignment confusion)
+    - 8–10 case khó / ambiguous / low-confidence
+    - 2–4 case hiếm (câu hỏi thay đổi theo ngữ cảnh, câu hỏi ngắn, câu hỏi có nội dung mơ hồ)
+    - ≥10 case lấy từ chatlog thật hoặc biến thể từ data mẫu.
+  - Dạng case: `input`, `expected_topic`, `confidence`, `reason`, `pass/fail`.
+  - Mục tiêu kiểm tra cả 4 lớp chỗ khó.
+  - User Input Grid đã được ghi ngay trong `eval/golden_set_20.json`: 4 chiều gồm `clarity`, `scope`, `technical_specificity`, `evidence_context`; mỗi case có `input_grid_cell`, và dataset liệt kê 3 ô chưa được phủ để tránh hiểu nhầm rằng 20 case đã bao phủ toàn bộ không gian đầu vào.
+>>>>>>> 40a71cd4af809c9f6d8f9e5a4f7266b6c29542d0
 
 - Quality bar (chốt từ hạn chốt spec của khoá, giữ nguyên sau đó): "Đạt khi ≥ 80% số trường hợp qua bộ, và không có lỗi 'không căn cứ / chốt topic sai khi thiếu dữ liệu' vượt quá 2 trường hợp; tất cả topic được xuất ra phải có ít nhất 1 quote hoặc nghĩa vụ minh chứng rõ từ chatlog."
 
@@ -168,18 +179,39 @@ Mỗi lớp có ít nhất 2 case và tổng cộng ≥8 case; những kịch b�
 
   | Lượt chạy | % qua bộ | Ghi chú | File |
   |---|---:|---|---|
+<<<<<<< HEAD
   | Run 01 (CP3 baseline) | 90.0% (18/20) | Đạt 18/20 case. Phân bổ: Lớp ① (4/5), Lớp ② (5/5), Lớp ③ (4/5), Lớp ④ (5/5). 2 case chưa đạt: G10 (hành vi reject đúng nhưng lệch nhãn kỳ vọng), G17 (nhận diện mơ hồ thay vì bắt đúng từ khóa randomness) | `eval/run_01_results.json` |
   | Run 02 (sau fix prompt) | TBD | Cập nhật sau khi tinh chỉnh prompt/scoring | `eval/run-02.csv` |
   | Run 03 (pre-demo) | TBD | Chốt quality bar cuối | `eval/run-03.csv` |
+=======
+  | Run 01 (mốc CP3, prototype AI thật) | 90.0% | 18/20 case đạt; cải thiện rõ ở lớp 2, 3, 4 sau khi rành rõ prompt reject/clarify | `eval/run_01_results.json` |
+  | Run 02 (sau fix prompt) | TBD | Cần cải thiện prompt + lọc logistics / out-of-scope | `eval/run_02_results.json` |
+  | Run 03 (pre-demo) | TBD | Chốt quality bar cuối | `eval/run_03_results.json` |
+
+- Kết quả đo sơ bộ CP3 (đã chạy thực tế):
+  - Dataset: 20 case, bao phủ 4 lớp chỗ khó.
+  - Tỷ lệ đạt: 18/20 = 90.0%.
+  - Phân tích theo lớp:
+    - Lớp 1 (Nguồn sự thật): 4/5 đạt
+    - Lớp 2 (Mơ hồ / thiếu thông tin): 5/5 đạt
+    - Lớp 3 (Ngoài phạm vi / thẩm quyền): 4/5 đạt
+    - Lớp 4 (Đặc thù domain): 5/5 đạt
+  - Nguyên nhân lỗi còn lại: còn 2 case không đạt ở lớp 1 và lớp 3, chủ yếu do câu hỏi quá gọn hoặc quá rộng, cần thêm ranh giới “confirm / ask human” khi độ chắc thấp.
+  - Kết luận: prototype đã vượt ngưỡng ban đầu và đạt gần mục tiêu quality bar; hệ thống đang hoạt động ổn với phản hồi `answer`, `clarify`, `reject` rõ ràng.
+  - Failure analysis: file kết quả lưu `failure_analysis` cho từng case fail. G10 cho thấy hành vi `reject` đúng nhưng nhãn topic/evaluator chưa đồng nhất; G17 cho thấy model nhận ra câu hỏi cần làm rõ nhưng chưa trích xuất cụ thể tín hiệu “model randomness” để nhận diện nondeterminism.
+
+- Trace kỹ thuật:
+  - Mỗi lần gọi Ollama ghi một dòng JSONL vào `eval/model_trace.jsonl`, gồm timestamp, case ID, model, messages/prompt, raw response và lỗi nếu có.
+>>>>>>> 40a71cd4af809c9f6d8f9e5a4f7266b6c29542d0
 
 ## §8. Phân công & kế hoạch
 
 - Phân công có tên:
-  - Spec & product framing: [Tên thành viên 1]
-  - Evidence mining & chứng cứ: [Tên thành viên 2]
-  - Prompt + eval: [Tên thành viên 3]
-  - Prototype / code: [Tên thành viên 4]
-  - Demo & validation: [Tên thành viên 5]
+  - Spec & product framing: Trần Xuân Đức
+  - Evidence mining & chứng cứ: Nguyễn Thành Nam
+  - Prompt + eval: Nguyễn Lê Phước Tiến
+  - Prototype / code: Trần Xuân Đức
+  - Demo & validation: Nguyễn Thành Nam + Nguyễn Lê Phước Tiến
 
 - Willing users (≥2 tên) + kế hoạch vòng validation *(bonus, nếu làm)*:
   - Thu — sinh viên đang gặp vấn đề tương tự với câu hỏi lặp lại về kiến thức kỹ thuật.
