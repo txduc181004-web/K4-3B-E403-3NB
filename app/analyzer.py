@@ -71,7 +71,9 @@ def analyze_batch(rows):
         format="json",
         options={
             "temperature": 0,
+            "num_predict": 400,
         },
+        keep_alive="10m",
     )
 
     content = response["message"]["content"]
