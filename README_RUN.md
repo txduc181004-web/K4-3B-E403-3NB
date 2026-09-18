@@ -8,6 +8,25 @@ Thay vì phải đọc hàng nghìn câu hỏi rời rạc, hệ thống sử d�
 
 Giảng viên có thể xem số lượng tín hiệu, số học viên, mức độ severity, lecture liên quan và evidence gốc từ chatlog để tự quyết định có cần giải thích hoặc ôn tập lại hay không.
 
+## Demo live AI trên giao diện
+
+1. Bật Ollama và bảo đảm model đã có sẵn:
+
+```powershell
+ollama serve
+ollama pull qwen2.5:3b
+```
+
+2. Ở terminal khác, chạy dashboard:
+
+```powershell
+streamlit run app/dashboard.py
+```
+
+3. Trong khu vực **Live AI analysis**, nhập vài câu hỏi hoặc upload CSV có cột `student_question`, rồi bấm **Send request to AI**. Giao diện sẽ hiển thị trạng thái đang gửi request, phản hồi JSON thật từ Ollama và số lượng kết quả nhận được.
+
+Đây là luồng phù hợp để quay demo 30 giây: nhập dữ liệu → bấm gửi → chờ model xử lý → hiển thị kết quả trực tiếp.
+
 ---
 
 ## 1. Problem

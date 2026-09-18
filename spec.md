@@ -155,6 +155,7 @@ Mỗi lớp có ít nhất 2 case và tổng cộng ≥8 case; những kịch b�
     - ≥10 case lấy từ chatlog thật hoặc biến thể từ data mẫu.
   - Dạng case: `input`, `expected_topic`, `confidence`, `reason`, `pass/fail`.
   - Mục tiêu kiểm tra cả 4 lớp chỗ khó.
+  - User Input Grid đã được ghi ngay trong `eval/golden_set_20.json`: 4 chiều gồm `clarity`, `scope`, `technical_specificity`, `evidence_context`; mỗi case có `input_grid_cell`, và dataset liệt kê 3 ô chưa được phủ để tránh hiểu nhầm rằng 20 case đã bao phủ toàn bộ không gian đầu vào.
 
 - Quality bar (chốt từ hạn chốt spec của khoá, giữ nguyên sau đó): "Đạt khi ≥ 80% số trường hợp qua bộ, và không có lỗi 'không căn cứ / chốt topic sai khi thiếu dữ liệu' vượt quá 2 trường hợp; tất cả topic được xuất ra phải có ít nhất 1 quote hoặc nghĩa vụ minh chứng rõ từ chatlog."
 
@@ -162,18 +163,33 @@ Mỗi lớp có ít nhất 2 case và tổng cộng ≥8 case; những kịch b�
 
   | Lượt chạy | % qua bộ | Ghi chú | File |
   |---|---:|---|---|
-  | Run 01 (mốc spec) | TBD | Chưa chạy | `eval/run-01.csv` |
-  | Run 02 (sau fix prompt) | TBD | Cập nhật sau khi chỉnh logic | `eval/run-02.csv` |
-  | Run 03 (pre-demo) | TBD | Chốt quality bar cuối | `eval/run-03.csv` |
+  | Run 01 (mốc CP3, prototype AI thật) | 90.0% | 18/20 case đạt; cải thiện rõ ở lớp 2, 3, 4 sau khi rành rõ prompt reject/clarify | `eval/run_01_results.json` |
+  | Run 02 (sau fix prompt) | TBD | Cần cải thiện prompt + lọc logistics / out-of-scope | `eval/run_02_results.json` |
+  | Run 03 (pre-demo) | TBD | Chốt quality bar cuối | `eval/run_03_results.json` |
+
+- Kết quả đo sơ bộ CP3 (đã chạy thực tế):
+  - Dataset: 20 case, bao phủ 4 lớp chỗ khó.
+  - Tỷ lệ đạt: 18/20 = 90.0%.
+  - Phân tích theo lớp:
+    - Lớp 1 (Nguồn sự thật): 4/5 đạt
+    - Lớp 2 (Mơ hồ / thiếu thông tin): 5/5 đạt
+    - Lớp 3 (Ngoài phạm vi / thẩm quyền): 4/5 đạt
+    - Lớp 4 (Đặc thù domain): 5/5 đạt
+  - Nguyên nhân lỗi còn lại: còn 2 case không đạt ở lớp 1 và lớp 3, chủ yếu do câu hỏi quá gọn hoặc quá rộng, cần thêm ranh giới “confirm / ask human” khi độ chắc thấp.
+  - Kết luận: prototype đã vượt ngưỡng ban đầu và đạt gần mục tiêu quality bar; hệ thống đang hoạt động ổn với phản hồi `answer`, `clarify`, `reject` rõ ràng.
+  - Failure analysis: file kết quả lưu `failure_analysis` cho từng case fail. G10 cho thấy hành vi `reject` đúng nhưng nhãn topic/evaluator chưa đồng nhất; G17 cho thấy model nhận ra câu hỏi cần làm rõ nhưng chưa trích xuất cụ thể tín hiệu “model randomness” để nhận diện nondeterminism.
+
+- Trace kỹ thuật:
+  - Mỗi lần gọi Ollama ghi một dòng JSONL vào `eval/model_trace.jsonl`, gồm timestamp, case ID, model, messages/prompt, raw response và lỗi nếu có.
 
 ## §8. Phân công & kế hoạch
 
 - Phân công có tên:
-  - Spec & product framing: [Tên thành viên 1]
-  - Evidence mining & chứng cứ: [Tên thành viên 2]
-  - Prompt + eval: [Tên thành viên 3]
-  - Prototype / code: [Tên thành viên 4]
-  - Demo & validation: [Tên thành viên 5]
+  - Spec & product framing: Trần Xuân Đức
+  - Evidence mining & chứng cứ: Nguyễn Thành Nam
+  - Prompt + eval: Nguyễn Lê Phước Tiến
+  - Prototype / code: Trần Xuân Đức
+  - Demo & validation: Nguyễn Thành Nam + Nguyễn Lê Phước Tiến
 
 - Willing users (≥2 tên) + kế hoạch vòng validation *(bonus, nếu làm)*:
   - Thu — sinh viên đang gặp vấn đề tương tự với câu hỏi lặp lại về kiến thức kỹ thuật.

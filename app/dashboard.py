@@ -1,14 +1,23 @@
 import json
+import sys
 from pathlib import Path
 
+import pandas as pd
 import streamlit as st
+
+# Streamlit executes this file with `app/` as the script path. Add the
+# repository root so imports using the `app` package work in that mode.
+BASE_DIR = Path(__file__).resolve().parent.parent
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
+
+from app.analyzer import MODEL, analyze_batch
 
 
 # ============================================================
 # CONFIG
 # ============================================================
 
-BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_PATH = BASE_DIR / "data" / "sample" / "gap_map.json"
 
 
@@ -394,6 +403,102 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True,
 )
+
+
+# ============================================================
+# LIVE AI ANALYSIS
+# ============================================================
+
+st.subheader("Live AI analysis")
+st.caption(
+    "Nhập hoặc tải câu hỏi để gửi trực tiếp tới Ollama và nhận kết quả AI thật."
+)
+
+uploaded_file = st.file_uploader(
+    "Upload chatlog CSV",
+    type=["csv"],
+    help="CSV cần có cột student_question; các cột turn_id, lecture_code và lecture_title là tùy chọn.",
+)
+
+question_text = st.text_area(
+    "Hoặc nhập câu hỏi học viên",
+    value=(
+        "Em chưa hiểu retrieval khác generation như thế nào?\n"
+        "Tại sao phải dùng embedding trong vector database?\n"
+        "RAG có giống fine-tuning không?"
+    ),
+    height=110,
+)
+
+if "live_analysis" not in st.session_state:
+    st.session_state.live_analysis = None
+
+analyze_clicked = st.button(
+    f"Send request to AI ({MODEL})",
+    type="primary",
+    use_container_width=True,
+)
+
+if analyze_clicked:
+    try:
+        if uploaded_file is not None:
+            input_rows = pd.read_csv(uploaded_file)
+            if "student_question" not in input_rows.columns:
+                raise ValueError("CSV phải có cột student_question.")
+            else:
+                input_rows = input_rows.copy()
+        else:
+            questions = [
+                line.strip()
+                for line in question_text.splitlines()
+                if line.strip()
+            ]
+            input_rows = pd.DataFrame(
+                [
+                    {
+                        "turn_id": f"LIVE-{index:03d}",
+                        "lecture_code": "LIVE",
+                        "lecture_title": "Live demo input",
+                        "student_question": question,
+                    }
+                    for index, question in enumerate(questions, start=1)
+                ]
+            )
+
+        required_columns = {
+            "turn_id": [f"LIVE-{index:03d}" for index in range(1, len(input_rows) + 1)],
+            "lecture_code": ["LIVE"] * len(input_rows),
+            "lecture_title": ["Live demo input"] * len(input_rows),
+        }
+        for column, default_values in required_columns.items():
+            if column not in input_rows.columns:
+                input_rows[column] = default_values
+
+        input_rows = input_rows[
+            ["turn_id", "lecture_code", "lecture_title", "student_question"]
+        ].head(10)
+
+        if input_rows.empty:
+            st.warning("Hãy nhập ít nhất một câu hỏi hoặc tải lên một CSV hợp lệ.")
+        else:
+            with st.spinner(f"Sending request to {MODEL}..."):
+                response = analyze_batch(input_rows)
+            st.session_state.live_analysis = response
+            st.success("AI response received from Ollama.")
+    except Exception as error:
+        st.session_state.live_analysis = None
+        st.error(f"Không thể gọi model: {error}")
+
+if st.session_state.live_analysis is not None:
+    live_results = st.session_state.live_analysis.get("results", [])
+    st.markdown("**Live response**")
+    st.json(st.session_state.live_analysis)
+    st.caption(
+        f"Received {len(live_results)} AI results. "
+        "Giảng viên dùng các tín hiệu này để xem xét tiếp."
+    )
+
+st.divider()
 
 
 # ============================================================
