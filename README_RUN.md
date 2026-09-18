@@ -140,8 +140,12 @@ K4-3B-E403-3NB/
 │   ├── fix_analysis_schema.py
 │   └── fix_missing_reason.py
 │
-├── spec.md
-└── README.md
+├── .gitignore
+├── README.md
+├── README_RUN.md
+├── canvas.md
+├── requirements.txt
+└── spec.md
 ```
 
 ---
