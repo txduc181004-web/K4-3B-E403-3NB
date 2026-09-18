@@ -4,7 +4,12 @@ import time
 
 import pandas as pd
 import ollama
-from dotenv import load_dotenv
+
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:
+    def load_dotenv():
+        return False
 
 from app.prompts import SYSTEM_PROMPT
 
