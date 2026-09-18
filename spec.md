@@ -128,7 +128,7 @@ Mỗi dòng theo mẫu `tình huống | lớp | hành vi mong muốn | nguyên t
 | Demo và validation | Nguyễn Thành Nam + Nguyễn Lê Phước Tiến | Kịch bản demo, log task, feedback người dùng |
 
 - **Willing users:** Thu, Kiên, Bình đã đồng ý thử; tối thiểu hai người sẽ tham gia vòng validation.
-- **Kế hoạch validation:** mỗi người dùng 10 phút; task là “tìm topic lớp cần ôn lại và mở evidence”; ghi thời gian hoàn thành, topic họ chọn, lúc họ nghi ngờ kết quả và quote feedback. Tiêu chí phụ: người dùng có phân biệt được `learning gap` với logistics/out-of-scope và có biết quyết định cuối thuộc về mình hay không. Chưa thực hiện vòng này tại thời điểm CP4.
+- **Kế hoạch validation:** mỗi người dùng 10 phút; task là “tìm topic lớp cần ôn lại và mở evidence”; ghi thời gian hoàn thành, topic họ chọn, lúc họ nghi ngờ kết quả và quote feedback. Tiêu chí phụ: người dùng có phân biệt được `learning gap` với logistics/out-of-scope và có biết quyết định cuối thuộc về mình hay không. `validation/dogfood_cp5.md` đã ghi một lượt mô phỏng nội bộ; R6 với người ngoài nhóm vẫn chưa được claim hoàn tất vì chưa có phiên trực tiếp được ghi nhận.
 - **Multi-prototype:** A tự nhóm topic tự động nhanh hơn nhưng rủi ro chốt sai; B đề xuất topic nhánh và yêu cầu xác nhận an toàn hơn nhưng tốn thao tác. Chọn B/conditional về mặt sản phẩm vì cost-of-error của ôn sai cao hơn chi phí xác nhận 1–2 topic.
 
 ## §9. Changelog
@@ -142,3 +142,12 @@ Mỗi dòng theo mẫu `tình huống | lớp | hành vi mong muốn | nguyên t
 | 18/9 — Run 02 | Bổ sung rule nhận diện model stochasticity/nondeterminism và sửa evaluator scope theo hành vi | G17 cần giữ cue `model randomness`; G10 đã reject đúng nhưng evaluator cũ lệch nhãn |
 | 18/9 — Run 03 | Chạy xác nhận độc lập trên cùng golden set, model và temperature | Tái lập Run 02: 20/20 = 100.0%, đủ 4 lớp |
 | 18/9 — CP4 | Khóa quality bar theo action, evidence và scope; giữ nguyên ngưỡng sau Run 02/03 | Ngăn hạ chuẩn sau khi thấy 90%; bảo vệ các case reject/clarify và traceability |
+| 18/9 — CP5 dogfood | Mô phỏng ba persona Kiên/Thu/Bình; thêm control `Instructor decision` dưới evidence | Friction lặp lại: thấy evidence nhưng không biết bước quyết định tiếp theo; log tại `validation/dogfood_cp5.md` |
+| 18/9 — CP5 | Giữ nguyên ranking, evidence, scope và quality bar; đưa R6 thật, persistence, correction UI và mobile vào backlog | Dogfood không thay thế phiên người dùng thật; các phần lõi đã có số đo Run 02/03 |
+
+### CP5 tổng hợp validation
+
+- **Chủ đề lặp nhiều nhất:** người dùng tìm được evidence nhưng thiếu điểm kết thúc để ghi quyết định của giảng viên.
+- **Thay đổi đã làm:** thêm `Instructor decision` với bốn lựa chọn ngay dưới evidence; AI không tự chọn.
+- **Phần giữ nguyên có lý do:** ranking, evidence, scope note và quality bar giữ nguyên vì Run 02/03 đạt 20/20 và dogfood không cho thấy lỗi ở các phần này.
+- **Đưa vào backlog:** hai phiên R6 thật với người ngoài nhóm, lưu quote có xin phép, lưu quyết định lâu dài, correction UI và kiểm thử mobile.
